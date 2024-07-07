@@ -2,12 +2,20 @@ require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const mineflayer = require('mineflayer');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers
+  ]
+});
 const discordToken = process.env.DISCORD_TOKEN;
 const minecraftOptions = {
   host: process.env.MINECRAFT_HOST,
   port: process.env.MINECRAFT_PORT,
-  username: 'botPlaceholderName' // Replace with any name you want
+  username: 'CalamityItself', // Replace with any name you want
+  version: '1.21' // Specify the correct Minecraft version
 };
 
 const bot = mineflayer.createBot(minecraftOptions);
