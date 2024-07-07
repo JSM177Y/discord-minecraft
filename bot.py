@@ -1,29 +1,19 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import mcrcon
 from dotenv import load_dotenv
 import os
+import time
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Get environment variables
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-RCON_IP = os.getenv('RCON_IP')
-RCON_PORT = os.getenv('RCON_PORT')
+RCON_IP = os.getenv('RCON_IP', 'localhost')
+RCON_PORT = int(os.getenv('RCON_PORT', 25575))
 RCON_PASSWORD = os.getenv('RCON_PASSWORD')
-CHANNEL_ID = int(os.getenv('CHANNEL_ID'))  # Add the channel ID to your .env file
-
-# Debugging prints
-print(f'DISCORD_BOT_TOKEN: {TOKEN}')
-print(f'RCON_IP: {RCON_IP}')
-print(f'RCON_PORT: {RCON_PORT}')
-print(f'RCON_PASSWORD: {RCON_PASSWORD}')
-print(f'CHANNEL_ID: {CHANNEL_ID}')
-
-# Convert RCON_PORT to integer if it's not None
-if RCON_PORT:
-    RCON_PORT = int(RCON_PORT)
+CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
 # Define intents
 intents = discord.Intents.default()
@@ -35,6 +25,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f'Bot {bot.user} is connected to Discord!')
+    monitor_minecraft_chat.start()  # Start the background task
 
 @bot.command(name='send')
 async def send_to_minecraft(ctx, *, message):
@@ -47,6 +38,7 @@ async def send_to_minecraft(ctx, *, message):
             await ctx.send(f'Message sent to Minecraft: {message}')
     except Exception as e:
         await ctx.send(f'Failed to send message: {str(e)}')
+        print(f'Error details: {e}')  # Additional debug information
 
 @bot.event
 async def on_message(message):
@@ -61,5 +53,25 @@ async def on_message(message):
         print(f'Failed to send message: {str(e)}')
 
     await bot.process_commands(message)
+
+@tasks.loop(seconds=5)  # Run this task every 5 seconds
+async def monitor_minecraft_chat():
+    try:
+        with mcrcon.MCRcon(RCON_IP, RCON_PASSWORD, port=RCON_PORT) as mcr:
+            response = mcr.command("list")  # Example command to keep connection alive
+            # Add code here to fetch and handle chat messages
+            # This depends on your Minecraft server setup and available RCON commands
+            # For now, we will simulate with an example message
+            # Replace this with actual fetching of chat logs from your server
+            example_message = "Player1: Hello from Minecraft!"
+            
+            # Check if this is a new message and send it to Discord
+            # For simplicity, let's just send the example message
+            channel = bot.get_channel(CHANNEL_ID)
+            await channel.send(example_message)
+            
+            time.sleep(5)  # Sleep to simulate waiting for new messages
+    except Exception as e:
+        print(f'Failed to monitor Minecraft chat: {str(e)}')
 
 bot.run(TOKEN)
