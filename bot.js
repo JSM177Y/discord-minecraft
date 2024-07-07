@@ -1,7 +1,6 @@
-require('dotenv').config();
+const mc = require('minecraft-protocol');
 const { Client, GatewayIntentBits } = require('discord.js');
-const mineflayer = require('mineflayer');
-const mcData = require('minecraft-data');
+require('dotenv').config();
 
 const client = new Client({
   intents: [
@@ -11,43 +10,33 @@ const client = new Client({
     GatewayIntentBits.GuildMembers
   ]
 });
+
 const discordToken = process.env.DISCORD_TOKEN;
 
-// Function to get the latest supported version
-const getLatestSupportedVersion = () => {
-  const supportedVersions = mcData.versions.pc.map(version => version.minecraftVersion);
-  return supportedVersions[0]; // Assuming the list is sorted by latest first
-};
-
-const minecraftOptions = {
+const bot = mc.createClient({
   host: process.env.MINECRAFT_HOST,
-  port: process.env.MINECRAFT_PORT,
-  username: 'CalamityItself', // Set bot's username to CalamityItself
-  version: getLatestSupportedVersion() // Automatically use the best-supported version
-};
+  port: parseInt(process.env.MINECRAFT_PORT),
+  username: 'CalamityItself',
+  version: '1.21'
+});
 
-const bot = mineflayer.createBot(minecraftOptions);
+bot.on('connect', () => {
+  console.log('Connected to the Minecraft server');
+});
+
+bot.on('chat', (packet) => {
+  const jsonMsg = JSON.parse(packet.message);
+  console.log(`Chat: ${jsonMsg}`);
+});
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-bot.on('login', () => {
-  console.log(`Minecraft bot logged in as ${bot.username}`);
-});
-
-bot.on('chat', (username, message) => {
-  if (username === bot.username) return;
-  const channel = client.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
-  if (channel) {
-    channel.send(`**${username}**: ${message}`);
-  }
-});
-
-client.on('messageCreate', message => {
+client.on('messageCreate', (message) => {
   if (message.author.bot) return;
   if (message.channel.id === process.env.DISCORD_CHANNEL_ID) {
-    bot.chat(message.content);
+    bot.write('chat', { message: message.content });
   }
 });
 
