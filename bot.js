@@ -5,10 +5,9 @@ const mineflayer = require('mineflayer');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 const discordToken = process.env.DISCORD_TOKEN;
 const minecraftOptions = {
-  host: 'your.minecraft.server.ip',
-  port: 25565,
-  username: 'yourMinecraftUsername',
-  password: 'yourMinecraftPassword'
+  host: process.env.MINECRAFT_HOST,
+  port: process.env.MINECRAFT_PORT,
+  username: 'botPlaceholderName' // Replace with any name you want
 };
 
 const bot = mineflayer.createBot(minecraftOptions);
@@ -23,7 +22,7 @@ bot.on('login', () => {
 
 bot.on('chat', (username, message) => {
   if (username === bot.username) return;
-  const channel = client.channels.cache.get('YOUR_DISCORD_CHANNEL_ID');
+  const channel = client.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
   if (channel) {
     channel.send(`**${username}**: ${message}`);
   }
@@ -31,7 +30,7 @@ bot.on('chat', (username, message) => {
 
 client.on('messageCreate', message => {
   if (message.author.bot) return;
-  if (message.channel.id === 'YOUR_DISCORD_CHANNEL_ID') {
+  if (message.channel.id === process.env.DISCORD_CHANNEL_ID) {
     bot.chat(message.content);
   }
 });
