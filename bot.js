@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const mineflayer = require('mineflayer');
+const mcData = require('minecraft-data');
 
 const client = new Client({
   intents: [
@@ -11,11 +12,18 @@ const client = new Client({
   ]
 });
 const discordToken = process.env.DISCORD_TOKEN;
+
+// Function to get the latest supported version
+const getLatestSupportedVersion = () => {
+  const supportedVersions = mcData.versions.pc.map(version => version.minecraftVersion);
+  return supportedVersions[0]; // Assuming the list is sorted by latest first
+};
+
 const minecraftOptions = {
   host: process.env.MINECRAFT_HOST,
   port: process.env.MINECRAFT_PORT,
   username: 'CalamityItself', // Set bot's username to CalamityItself
-  version: '1.21-rc1' // Use the 1.21 version
+  version: getLatestSupportedVersion() // Automatically use the best-supported version
 };
 
 const bot = mineflayer.createBot(minecraftOptions);
