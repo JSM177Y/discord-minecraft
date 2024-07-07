@@ -13,7 +13,12 @@ RCON_IP = os.getenv('RCON_IP')
 RCON_PORT = int(os.getenv('RCON_PORT'))
 RCON_PASSWORD = os.getenv('RCON_PASSWORD')
 
-bot = commands.Bot(command_prefix="!")
+# Define intents
+intents = discord.Intents.default()
+intents.messages = True
+intents.message_content = True  # Enable message content intent
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
