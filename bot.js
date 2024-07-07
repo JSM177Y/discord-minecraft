@@ -14,8 +14,8 @@ const discordToken = process.env.DISCORD_TOKEN;
 const minecraftOptions = {
   host: process.env.MINECRAFT_HOST,
   port: process.env.MINECRAFT_PORT,
-  username: 'CalamityItself', // Replace with any name you want
-  version: '1.21' // Specify the correct Minecraft version
+  username: 'CalamityItself', // Set bot's username to CalamityItself
+  version: '1.21' // Use the 1.21 version
 };
 
 const bot = mineflayer.createBot(minecraftOptions);
