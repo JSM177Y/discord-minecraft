@@ -37,7 +37,8 @@ async def monitor_minecraft_chat():
         last_log = ""
 
         while not bot.is_closed():
-            response = mcr.command('list')
+            # Assuming you have a way to fetch the latest chat message
+            response = mcr.command('latest_chat_message')  # Replace with actual command to get the latest chat message
             print(f"Received response from server: {response}")
             if response != last_log:
                 await channel.send(response)
@@ -55,5 +56,17 @@ async def send_to_minecraft(ctx, *, message):
     except Exception as e:
         print(f"Failed to send message: {str(e)}")
         await ctx.send(f'Failed to send message: {str(e)}')
+
+@bot.command(name='on')
+async def online_players(ctx):
+    try:
+        print(f"Checking online players")
+        with MCRcon(RCON_HOST, RCON_PASSWORD, port=int(RCON_PORT)) as mcr:
+            response = mcr.command('list')
+            print(f"Received response from server: {response}")
+            await ctx.send(f'Online players: {response}')
+    except Exception as e:
+        print(f"Failed to check online players: {str(e)}")
+        await ctx.send(f'Failed to check online players: {str(e)}')
 
 bot.run(DISCORD_TOKEN)
