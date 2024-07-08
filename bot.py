@@ -14,6 +14,12 @@ RCON_PORT = int(os.getenv('RCON_PORT'))
 RCON_PASSWORD = os.getenv('RCON_PASSWORD')
 MC_LOG_FILE = os.getenv('MC_LOG_FILE')
 
+print(f'DISCORD_TOKEN: {DISCORD_TOKEN}')
+print(f'DISCORD_CHANNEL_ID: {DISCORD_CHANNEL_ID}')
+print(f'RCON_HOST: {RCON_HOST}')
+print(f'RCON_PORT: {RCON_PORT}')
+print(f'RCON_PASSWORD: {RCON_PASSWORD}')
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -42,19 +48,25 @@ async def monitor_minecraft_log():
 @bot.command(name='send')
 async def send_to_minecraft(ctx, *, message):
     try:
+        print(f"Sending message to Minecraft: {message}")
         with MCRcon(RCON_HOST, RCON_PASSWORD, port=int(RCON_PORT)) as mcr:
             response = mcr.command(f'say {message}')
+            print(f"Received response from server after sending message: {response}")
             await ctx.send(f'Message sent to Minecraft: {message}')
     except Exception as e:
+        print(f"Failed to send message: {str(e)}")
         await ctx.send(f'Failed to send message: {str(e)}')
 
 @bot.command(name='on')
 async def online_players(ctx):
     try:
+        print(f"Checking online players")
         with MCRcon(RCON_HOST, RCON_PASSWORD, port=int(RCON_PORT)) as mcr:
             response = mcr.command('list')
+            print(f"Received response from server: {response}")
             await ctx.send(f'Online players: {response}')
     except Exception as e:
+        print(f"Failed to check online players: {str(e)}")
         await ctx.send(f'Failed to check online players: {str(e)}')
 
 bot.run(DISCORD_TOKEN)
